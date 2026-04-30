@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">ℹ Dokumentum részletei</h4>
+            <a href="{% url 'document_list' %}" class="btn btn-light btn-sm">Vissza a listához</a>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <tr>
+                    <th class="bg-light w-25">Cím</th>
+                    <td>{{ doc.title }}</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Leírás</th>
+                    <td>{{ doc.description|default:"Nincs leírás megadva." }}</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Eredeti fájlnév</th>
+                    <td><code>{{ doc.filename }}</code></td>
+                </tr>
+                <tr>
+                    <th class="bg-light text-danger">Lejárat dátuma</th>
+                    <td class="fw-bold text-danger">
+                        {{ doc.valid_until|date:"Y. m. d."|default:"Nincs lejárati dátum." }}
+                    </td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Érvényesség kezdete</th>
+                    <td>{{ doc.valid_from|date:"Y. m. d."|default:"-" }}</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Feltöltő</th>
+                    <td>{{ doc.uploader.username }}</td>
+                </tr>
+                <tr>
+                    <th class="bg-light">Feltöltve</th>
+                    <td>{{ doc.created_at|date:"Y. m. d. H:i" }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

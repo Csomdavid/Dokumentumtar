@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-3">
+    <h2 class="text-secondary">🗄 Archivált Dokumentumok</h2>
+    <p class="text-muted">Itt találhatóak a korábbi, már nem aktív dokumentumok. Szigorúan csak olvasható (Read-Only) nézet!</p>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="GET" action="{% url 'archive_list' %}" class="d-flex shadow-sm">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted">🔍</i>
+                </span>
+                <input type="text" name="q" class="form-control border-start-0"
+                       placeholder="Keresés az archívumban..."
+                       value="{{ query|default:'' }}">
+                <button class="btn btn-secondary px-4" type="submit">Keresés</button>
+                {% if query %}
+                    <a href="{% url 'archive_list' %}" class="btn btn-outline-secondary">Szűrés törlése</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-secondary">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Cím</th>
+                        <th>Fájlnév</th>
+                        <th>Feltöltő</th>
+                        <th>Feltöltve</th>
+                        <th class="text-end pe-3">Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in docs %}
+                    <tr>
+                        <td class="ps-3">
+                            <div class="fw-bold text-dark">{{ doc.title }}</div>
+                            <small class="text-muted">{{ doc.description|truncatechars:50 }}</small>
+                        </td>
+                        <td><code class="small text-secondary">{{ doc.filename }}</code></td>
+                        <td><span class="badge bg-light text-dark border">{{ doc.uploader.username }}</span></td>
+                        <td><small>{{ doc.created_at|date:"Y. m. d. H:i" }}</small></td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'document_download' doc.id %}?view=1" target="_blank" class="btn btn-sm btn-outline-secondary shadow-sm">
+                                👁 Megtekintés
+                            </a>
+
+                            <a href="{% url 'document_download' doc.id %}" class="btn btn-sm btn-outline-primary shadow-sm ms-1">
+                                ⬇ Letöltés
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <div class="mb-2">📂</div>
+                            {% if query %}
+                                Nincs találat az archívumban a következőre: "<strong>{{ query }}</strong>"
+                            {% else %}
+                                Az archívum jelenleg üres.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mb-4">
+    <h2 class="text-primary">🛡️ Jogosultságok Kezelése</h2>
+    <p class="text-muted">Dokumentum-hozzáférések kiosztása, módosítása és visszavonása.</p>
+</div>
+
+<div class="card shadow-sm border-primary mb-4">
+    <div class="card-header bg-primary text-white py-3">
+        <h5 class="mb-0">Új jogosultság kiosztása vagy meglévő módosítása</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'permission_manager' %}" class="row g-3 align-items-end">
+            {% csrf_token %}
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Dokumentum kiválasztása *</label>
+                <select name="document" class="form-select" required>
+                    <option value="" disabled selected>Válassz dokumentumot...</option>
+                    {% for doc in documents %}
+                        <option value="{{ doc.id }}">{{ doc.title }} ({{ doc.filename }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Felhasználó *</label>
+                <select name="employee" class="form-select" required>
+                    <option value="" disabled selected>Válassz felhasználót...</option>
+                    {% for d in employees %}
+                        <option value="{{ d.id }}">{{ d.username }} ({{ d.last_name|default:d.first_name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label fw-bold">Jogosultság Típusa *</label>
+                <select name="permission_type" class="form-select" required>
+                    <option value="read">Olvasás (Read)</option>
+                    <option value="write">Írás (Write)</option>
+                    <option value="owner">Tulajdonos (Owner)</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 shadow-sm">Mentés</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Dokumentum</th>
+                        <th>Felhasználó (Username)</th>
+                        <th>Jogosultság Típusa</th>
+                        <th class="text-end pe-3">Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for perm in permissions %}
+                    <tr>
+                        <td class="ps-3"><strong>{{ perm.document.title }}</strong></td>
+                        <td>
+                            {{ perm.employee.username }}
+                            {% if perm.employee.role == 'admin' %}
+                                <span class="badge bg-secondary ms-1 small" style="font-size: 0.7rem;">ADMIN</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if perm.permission_type == 'owner' %}
+                                <span class="badge bg-danger">Owner</span>
+                            {% elif perm.permission_type == 'write' %}
+                                <span class="badge bg-warning text-dark">Write</span>
+                            {% else %}
+                                <span class="badge bg-info text-dark">Read</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end pe-3">
+                            {% if perm.employee.role == 'admin' %}
+
+                                {% if request.user.is_superuser and perm.employee != request.user %}
+                                    <a href="{% url 'admin_password_reset' perm.employee.id %}" class="btn btn-sm btn-outline-dark me-1">🔑 Reset</a>
+                                    <a href="{% url 'permission_delete' perm.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Szuperadmin: Biztosan törlöd az admin jogát?');">❌ Törlés</a>
+                                {% else %}
+                                    <span class="badge bg-light text-muted border py-2 px-3">
+                                        <i class="bi bi-shield-lock"></i> Védett (Admin)
+                                    </span>
+                                {% endif %}
+
+                            {% else %}
+                                <a href="{% url 'admin_password_reset' perm.employee.id %}" class="btn btn-sm btn-outline-dark me-1">🔑 Reset</a>
+                                <a href="{% url 'permission_delete' perm.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Visszavonod a jogosultságot?');">❌ Visszavonás</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-5">
+                            Nincsenek még kiosztott jogosultságok.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if new_expired_count > 0 %}
+<div class="alert alert-info alert-dismissible fade show shadow-sm mb-4" role="alert">
+    <strong>Figyelem!</strong> A legutóbbi belépése óta <strong>{{ new_expired_count }}</strong> dokumentum járt le, amelyeket a rendszer automatikusan archivált.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Elérhető Dokumentumok</h2>
+    <a href="{% url 'document_upload' %}" class="btn btn-success shadow-sm">+ Új PDF Feltöltése</a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <form method="GET" action="{% url 'document_list' %}" class="d-flex shadow-sm">
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0">
+                    <i class="bi bi-search text-muted">🔍</i>
+                </span>
+                <input type="text" name="q" class="form-control border-start-0"
+                       placeholder="Keresés cím vagy fájlnév alapján..."
+                       value="{{ query|default:'' }}">
+                <button class="btn btn-primary px-4" type="submit">Keresés</button>
+                {% if query %}
+                    <a href="{% url 'document_list' %}" class="btn btn-outline-secondary">Szűrés törlése</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">Cím</th>
+                        <th>Fájlnév</th>
+                        <th>Feltöltő</th>
+                        <th>Feltöltve</th>
+                        <th class="text-end pe-3">Műveletek</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for doc in docs %}
+                    <tr class="{{ doc.expiry_class }}">
+                        <td class="ps-3">
+                            <div class="fw-bold text-dark">{{ doc.title }}</div>
+                            <small class="text-muted">{{ doc.description|truncatechars:50 }}</small>
+                        </td>
+                        <td><code class="small text-primary">{{ doc.filename }}</code></td>
+                        <td><span class="badge bg-light text-dark border">{{ doc.uploader.username }}</span></td>
+                        <td><small>{{ doc.created_at|date:"Y. m. d. H:i" }}</small></td>
+                        <td class="text-end pe-3">
+                            <a href="{% url 'document_detail' doc.id %}" class="btn btn-sm btn-outline-info shadow-sm">
+                                ℹ Adatok
+                            </a>
+
+                            <a href="{% url 'document_download' doc.id %}?view=1" target="_blank" class="btn btn-sm btn-outline-secondary shadow-sm">
+                                👁 Megtekintés
+                            </a>
+
+                            <a href="{% url 'document_download' doc.id %}" class="btn btn-sm btn-outline-primary shadow-sm ms-1">
+                                ⬇ Letöltés
+                            </a>
+
+                            {% if user.role == 'admin' %}
+                                <a href="{% url 'document_archive' doc.id %}"
+                                   class="btn btn-sm btn-outline-warning ms-1 shadow-sm"
+                                   onclick="return confirm('Biztosan archiválni szeretnéd ezt a dokumentumot?');">
+                                    🗄 Archiválás
+                                </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted py-5">
+                            <div class="mb-2">📭</div>
+                            {% if query %}
+                                Nincs találat a következőre: "<strong>{{ query }}</strong>"
+                            {% else %}
+                                Még nincs feltöltött dokumentum a tárban.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Új PDF Feltöltése és Titkosítása</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Dokumentum címe *</label>
+                        <input type="text" name="title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Leírás</label>
+                        <input type="text" name="description" class="form-control">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Érvényes tól</label>
+                            <input type="date" name="valid_from" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Érvényes ig</label>
+                            <input type="date" name="valid_until" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">PDF Fájl kiválasztása *</label>
+                        <input type="file" name="pdf_file" class="form-control" accept=".pdf" required>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'document_list' %}" class="btn btn-outline-secondary">Vissza</a>
+                        <button type="submit" class="btn btn-success">Feltöltés és Titkosítás</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

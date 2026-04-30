@@ -1,0 +1,18 @@
+# --- Keretrendszer ---
+Django==5.2.12[cite: 5]
+
+# --- PDF és dokumentumkezelés ---
+reportlab==4.1.0[cite: 5]
+pypdf==3.15.1[cite: 5]
+
+# --- Titkosítás és Biztonság ---
+cryptography==41.0.7[cite: 5]
+python-dotenv==1.0.0[cite: 5]
+
+
+# Biztonsági audit eszköz a függőségek ellenőrzéséhez
+pip-audit==2.7.2
+# Statikus biztonsági elemző a Python kódhoz
+bandit==1.7.7
+# Automatikus kódformázó a Clean Code stílus kényszerítéséhez
+black==24.2.0

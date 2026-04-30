@@ -1,0 +1,52 @@
+# --- APACHE CONFIGURATION TEMPLATE ---
+# Útmutató: Cseréld le a {PROJECT_ROOT} kifejezést a projekted teljes elérési útjára.
+# Példa: C:/Szakdolgozat/Dokumentumtar (Figyelem: Windows alatt is / jelet használj!)
+
+<VirtualHost *:80>
+    ServerName dokumentumtar.local
+    # Automatikus átirányítás HTTPS-re a kiberbiztonsági tézis alátámasztásához
+    Redirect permanent / https://dokumentumtar.local/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName dokumentumtar.local
+    ServerAdmin admin@localhost
+
+    # Még a Python kód előtt megállítja a túl nagy kéréseket.
+    LimitRequestBody 26214400
+
+    # Naplózás - A korábban létrehozott storage/logs mappát használjuk
+    ErrorLog "{PROJECT_ROOT}/storage/logs/error.log"
+    CustomLog "{PROJECT_ROOT}/storage/logs/access.log" combined
+
+    # WSGI beállítások (A Python és Apache összekötése)
+    WSGIPassAuthorization On
+    WSGIScriptAlias / "{PROJECT_ROOT}/core/wsgi.py"
+
+    <Directory "{PROJECT_ROOT}/core">
+        <Files wsgi.py>
+            Require all granted
+        </Files>
+    </Directory>
+
+    # Statikus fájlok (CSS, JS, Képek) kiszolgálása
+    Alias /static/ "{PROJECT_ROOT}/static/"
+    <Directory "{PROJECT_ROOT}/static">
+        Require all granted
+    </Directory>
+
+    # --- BIZTONSÁGI FEJLÉCEK (A szakdolgozat kiberbiztonsági pillérei) ---
+    # Megakadályozza a MIME-típusú sniffing támadásokat
+    Header always set X-Content-Type-Options "nosniff"
+    # Clickjacking elleni védelem: az oldal nem ágyazható be iframe-be
+    Header always set X-Frame-Options "DENY"
+    # XSS szűrés kényszerítése a böngészőben
+    Header always set X-XSS-Protection "1; mode=block"
+    # HSTS: 1 évig csak HTTPS-en keresztül engedi a kommunikációt
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # SSL Beállítások (Helyi elérési utak a tanúsítványokhoz)
+    SSLEngine on
+    SSLCertificateFile "{PATH_TO_SSL_CERTS}/server.crt"
+    SSLCertificateKeyFile "{PATH_TO_SSL_CERTS}/server.key"
+</VirtualHost>

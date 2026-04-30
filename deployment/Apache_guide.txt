@@ -1,0 +1,19 @@
+📄 DOKUMENTUMTÁR - PRODUKCIÓS TELEPÍTÉSI ÚTMUTATÓ (WINDOWS + APACHE)
+Ez az útmutató a rendszer éles (Production) környezetben való üzembe helyezéséhez készült[cite: 6].
+
+1. Előfeltételek
+- Apache 2.4+ (Win64 verzió javasolt az Apache Lounge-ról)[cite: 7, 8].
+- Visual C++ Redistributable csomag[cite: 9].
+- mod_wsgi modul: Telepítse a pip install -r requirements_production.txt paranccsal[cite: 10].
+
+2. Apache Konfiguráció
+- Modul betöltése: A 'mod_wsgi-express module-config' parancs kimenetét másolja a httpd.conf elejére[cite: 11, 12].
+- Automata generálás: A TELEPITES.bat lefuttatása után a deployment/dokumentumtar.conf már tartalmazza a helyi útvonalakat[cite: 13, 14].
+- Aktiválás: Másolja a generált fájlt az Apache conf/extra/ mappájába, majd adja hozzá a 'Include conf/extra/dokumentumtar.conf' sort a httpd.conf végéhez[cite: 15, 16].
+
+3. Kiberbiztonsági beállítások
+- Környezet váltás: A .env fájlban állítsa az APP_ENV értéket 'prod'-ra. Ez aktiválja a SESSION_COOKIE_SECURE védelmet és kikapcsolja a DEBUG módot[cite: 20, 21].
+- Jogosultságok: Az Apache felhasználónak írási jogot kell adni a storage/ mappára és a db.sqlite3 fájlra[cite: 18].
+- Statikus fájlok: Futtassa a 'python manage.py collectstatic' parancsot az élesítés előtt[cite: 19].
+
+FONTOS: A TELEPITES.bat futtatása során az init_db.py gondoskodik a tesztfelhasználók helyes szerepköreinek (admin/user) beállításáról, így a rendszer azonnal használatba vehető[cite: 17].

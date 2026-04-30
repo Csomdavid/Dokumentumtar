@@ -1,0 +1,3 @@
+# --- Szerver környezet (Apache/WSGI) ---
+# Ez a csomag csak akkor telepíthető, ha az Apache Lounge már fent van a gépen!
+mod_wsgi
