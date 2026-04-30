@@ -68,7 +68,7 @@
                                 ⬇ Letöltés
                             </a>
 
-                            {% if user.role == 'admin' %}
+                            {% if user.role == 'admin' or doc.user_permission == 'owner' %}
                                 <a href="{% url 'document_archive' doc.id %}"
                                    class="btn btn-sm btn-outline-warning ms-1 shadow-sm"
                                    onclick="return confirm('Biztosan archiválni szeretnéd ezt a dokumentumot?');">
