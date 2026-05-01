@@ -1,19 +1,42 @@
-📄 DOKUMENTUMTÁR - PRODUKCIÓS TELEPÍTÉSI ÚTMUTATÓ (WINDOWS + APACHE)
-Ez az útmutató a rendszer éles (Production) környezetben való üzembe helyezéséhez készült[cite: 6].
+##📄 DOKUMENTUMTÁR - PRODUKCIÓS TELEPÍTÉSI ÚTMUTATÓ (WINDOWS + APACHE)
 
-1. Előfeltételek
-- Apache 2.4+ (Win64 verzió javasolt az Apache Lounge-ról)[cite: 7, 8].
-- Visual C++ Redistributable csomag[cite: 9].
-- mod_wsgi modul: Telepítse a pip install -r requirements_production.txt paranccsal[cite: 10].
+Ez az útmutató a rendszer éles (Production) környezetben való üzembe helyezéséhez készült, különös tekintettel az Apache webszerver integrációra és a kiberbiztonsági keményítésre.
+# 1. Előfeltételek
 
-2. Apache Konfiguráció
-- Modul betöltése: A 'mod_wsgi-express module-config' parancs kimenetét másolja a httpd.conf elejére[cite: 11, 12].
-- Automata generálás: A TELEPITES.bat lefuttatása után a deployment/dokumentumtar.conf már tartalmazza a helyi útvonalakat[cite: 13, 14].
-- Aktiválás: Másolja a generált fájlt az Apache conf/extra/ mappájába, majd adja hozzá a 'Include conf/extra/dokumentumtar.conf' sort a httpd.conf végéhez[cite: 15, 16].
+A telepítés megkezdése előtt győződjön meg arról, hogy az alábbi komponensek rendelkezésre állnak:
 
-3. Kiberbiztonsági beállítások
-- Környezet váltás: A .env fájlban állítsa az APP_ENV értéket 'prod'-ra. Ez aktiválja a SESSION_COOKIE_SECURE védelmet és kikapcsolja a DEBUG módot[cite: 20, 21].
-- Jogosultságok: Az Apache felhasználónak írási jogot kell adni a storage/ mappára és a db.sqlite3 fájlra[cite: 18].
-- Statikus fájlok: Futtassa a 'python manage.py collectstatic' parancsot az élesítés előtt[cite: 19].
+    Apache 2.4+ (Win64): Javasolt az Apache Lounge-ról letölthető verzió.
 
-FONTOS: A TELEPITES.bat futtatása során az init_db.py gondoskodik a tesztfelhasználók helyes szerepköreinek (admin/user) beállításáról, így a rendszer azonnal használatba vehető[cite: 17].
+        Link az Apache Lounge letöltéshez: https://www.apachelounge.com/download/
+
+    Visual C++ Redistributable: Az Apache futtatásához szükséges csomag.
+
+        Link a Microsoft Visual C++ letöltéshez: https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
+
+    Python környezet: Telepítse a produkciós függőségeket a pip install -r requirements_production.txt paranccsal.
+
+# 2. Apache Konfiguráció
+
+Az Apache és a Python (Django) közötti kapcsolatot a mod_wsgi modul biztosítja.
+
+    Modul betöltése: Futtassa a mod_wsgi-express module-config parancsot, majd a kimenetet másolja a httpd.conf fájl elejére.
+
+    Automata generálás: Futtassa le a gyökérkönyvtárban található TELEPITES.bat fájlt. Ez automatikusan kitölti a deployment/dokumentumtar.conf állományt a helyi útvonalakkal.
+
+    Aktiválás:
+
+        Másolja a generált .conf fájlt az Apache conf/extra/ mappájába.
+
+        Adja hozzá az Include conf/extra/dokumentumtar.conf sort a fő httpd.conf végéhez.
+
+# 3. Kiberbiztonsági beállítások
+
+Mivel a dolgozat prioritása a biztonság, az alábbi lépések elengedhetetlenek az élesítés előtt:
+
+    Környezet váltás: A .env fájlban az APP_ENV értékét állítsa 'prod'-ra. Ez automatikusan kikapcsolja a DEBUG módot és aktiválja a SESSION_COOKIE_SECURE védelmet.
+
+    Adatbázis és tároló jogosultságok: Az Apache szolgáltatást futtató felhasználónak (alapértelmezetten SYSTEM vagy LocalService) írási jogot kell kapnia a storage/ mappára és a db.sqlite3 fájlra.
+
+    Statikus fájlok izolálása: Futtassa a python manage.py collectstatic parancsot, hogy a statikus elemeket (CSS, JS) az Apache közvetlenül tudja kiszolgálni, tehermentesítve a Python keretrendszert.
+
+FONTOS: A TELEPITES.bat futtatása során az init_db.py gondoskodik a tesztfelhasználók (admin/user) és alapértelmezett szerepkörök beállításáról, így a rendszer az első indítás után azonnal, biztonságos hozzáférésekkel használható.
