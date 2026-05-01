@@ -1,27 +1,28 @@
-##📄 DOKUMENTUMTÁR - PRODUKCIÓS TELEPÍTÉSI ÚTMUTATÓ (WINDOWS + APACHE)
+#📄 DOKUMENTUMTÁR - PRODUKCIÓS TELEPÍTÉSI ÚTMUTATÓ (WINDOWS + APACHE)
 
-Ez az útmutató a rendszer éles (Production) környezetben való üzembe helyezéséhez készült, különös tekintettel az Apache webszerver integrációra és a kiberbiztonsági keményítésre.
-# 1. Előfeltételek
+Ez az útmutató a rendszer éles (Production) környezetben való üzembe helyezéséhez készült, különös tekintettel az Apache webszerver integrációra és a kiberbiztonsági keményítésre.  
 
-A telepítés megkezdése előtt győződjön meg arról, hogy az alábbi komponensek rendelkezésre állnak:
+## 1. Előfeltételek
+
+A telepítés megkezdése előtt győződjön meg arról, hogy az alábbi komponensek rendelkezésre állnak a Windows környezetben:  
 
     Apache 2.4+ (Win64): Javasolt az Apache Lounge-ról letölthető verzió.
 
-        Link az Apache Lounge letöltéshez: [Az Apache Lounge letöltési oldala](https://www.apachelounge.com/download/)
+        Az Apache Lounge letöltési oldala
 
     Visual C++ Redistributable: Az Apache futtatásához szükséges csomag.
 
-        Link a Microsoft Visual C++ letöltéshez: [Visual C++ Redistributable letöltése](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
+        Visual C++ Redistributable letöltése
 
-    Python környezet: Telepítse a produkciós függőségeket a pip install -r requirements_production.txt paranccsal.
+    Python környezet: Telepítse a produkciós függőségeket a pip install -r requirements_production.txt paranccsal.  
 
-# 2. Apache Konfiguráció
+## 2. Apache Konfiguráció
 
-Az Apache és a Python (Django) közötti kapcsolatot a mod_wsgi modul biztosítja.
+Az Apache és a Python (Django) közötti kapcsolatot a mod_wsgi modul biztosítja a refaktorált kódbázisban.  
 
     Modul betöltése: Futtassa a mod_wsgi-express module-config parancsot, majd a kimenetet másolja a httpd.conf fájl elejére.
 
-    Automata generálás: Futtassa le a gyökérkönyvtárban található TELEPITES.bat fájlt. Ez automatikusan kitölti a deployment/dokumentumtar.conf állományt a helyi útvonalakkal.
+    Automata generálás: Futtassa le a gyökérkönyvtárban található TELEPITES.bat fájlt. Ez automatikusan kitölti a deployment/dokumentumtar.conf állományt a helyi útvonalakkal.  
 
     Aktiválás:
 
@@ -29,14 +30,12 @@ Az Apache és a Python (Django) közötti kapcsolatot a mod_wsgi modul biztosít
 
         Adja hozzá az Include conf/extra/dokumentumtar.conf sort a fő httpd.conf végéhez.
 
-# 3. Kiberbiztonsági beállítások
+## 3. Kiberbiztonsági beállítások
 
-Mivel a dolgozat prioritása a biztonság, az alábbi lépések elengedhetetlenek az élesítés előtt:
+Mivel a dolgozat prioritása az adatbiztonság és a kiberbiztonság, az alábbi lépések elengedhetetlenek:  
 
-    Környezet váltás: A .env fájlban az APP_ENV értékét állítsa 'prod'-ra. Ez automatikusan kikapcsolja a DEBUG módot és aktiválja a SESSION_COOKIE_SECURE védelmet.
+    Környezet váltás: A .env fájlban az APP_ENV értékét állítsa 'prod'-ra. Ez automatikusan kikapcsolja a DEBUG módot és aktiválja a SESSION_COOKIE_SECURE védelmet.  
 
-    Adatbázis és tároló jogosultságok: Az Apache szolgáltatást futtató felhasználónak (alapértelmezetten SYSTEM vagy LocalService) írási jogot kell kapnia a storage/ mappára és a db.sqlite3 fájlra.
+    Adatbázis és tároló jogosultságok: Az Apache szolgáltatást futtató felhasználónak (alapértelmezetten SYSTEM vagy LocalService) írási jogot kell kapnia a storage/ mappára és az SQLite db.sqlite3 fájlra.  
 
-    Statikus fájlok izolálása: Futtassa a python manage.py collectstatic parancsot, hogy a statikus elemeket (CSS, JS) az Apache közvetlenül tudja kiszolgálni, tehermentesítve a Python keretrendszert.
-
-FONTOS: A TELEPITES.bat futtatása során az init_db.py gondoskodik a tesztfelhasználók (admin/user) és alapértelmezett szerepkörök beállításáról, így a rendszer az első indítás után azonnal, biztonságos hozzáférésekkel használható.
+    FONTOS: A TELEPITES.bat futtatása során az init_db.py gondoskodik a tesztfelhasználók (admin/user) és alapértelmezett szerepkörök beállításáról, így a rendszer az első indítás után azonnal, biztonságos hozzáférésekkel használható.
