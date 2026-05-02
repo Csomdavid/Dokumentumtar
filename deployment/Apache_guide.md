@@ -8,11 +8,11 @@ A telepítés megkezdése előtt győződjön meg arról, hogy az alábbi kompon
 
     Apache 2.4+ (Win64): Javasolt az Apache Lounge-ról letölthető verzió.
 
-        Az Apache Lounge letöltési oldala: [https://www.apachelounge.com/download/](https://www.apachelounge.com/download/)
+        Az Apache Lounge letöltési oldala: https://www.apachelounge.com/download/
 
     Visual C++ Redistributable: Az Apache futtatásához szükséges csomag.
 
-        Visual C++ Redistributable letöltése: [https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170)
+        Visual C++ Redistributable letöltése: https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170
 
     Python környezet: Telepítse a produkciós függőségeket a pip install -r requirements_production.txt paranccsal.  
 
