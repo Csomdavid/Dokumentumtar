@@ -1,4 +1,4 @@
-# Dokumentumtar
+# DOKUMENTUMTÁR
 Szakdolgozat 2026
 
 Ez a projekt egy helyi dokumentumtár-rendszer, amely Python alapokon, Django keretrendszer
