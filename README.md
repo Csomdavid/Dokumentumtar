@@ -6,6 +6,19 @@ használatával készült Windows környezetre. A fejlesztés során a Clean Cod
 valamint a kiberbiztonsági és adatbiztonsági szempontok élveztek prioritást.
 
 
+## 🛠️ Alkalmazott technológiák
+
+- Keretrendszer: Django 5.2.12
+
+- Adatbázis: SQLite (helyi fájl alapú tárolás)
+
+- Titkosítás: Cryptography könyvtár (AES-alapú fájltitkosítás)
+
+- Audit eszközök: bandit (statikus biztonsági elemzés), pip-audit (sebezhetőség-vizsgálat)
+
+- Kódminőség: black automatikus kódformázó a PEP 8 szabvány betartásához
+
+
 ## 🛡️ Kiberbiztonsági jellemzők
 - Automatizált kulcskezelés: A rendszer az első telepítéskor kriptográfiailag erős titkosító
 kulcsokat generál a secrets modul segítségével, elkerülve a "hard-coded" jelszavak használatát.
