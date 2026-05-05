@@ -2,8 +2,7 @@
 Szakdolgozat 2026
 
 Ez a projekt egy helyi dokumentumtár-rendszer, amely Python alapokon, Django keretrendszer
-használatával készült Windows környezetre. A fejlesztés során a Clean Code irányelvek,
-valamint a kiberbiztonsági és adatbiztonsági szempontok élveztek prioritást.
+használatával készült Windows környezetre. A fejlesztés során a kiberbiztonsági és adatbiztonsági szempontok élveztek prioritást.
 
 
 ## 🛠️ Alkalmazott technológiák
