@@ -17,7 +17,7 @@ from .models import Document, AuditLog
 # Django saját loggere
 logger = logging.getLogger(__name__)
 
-# --- Könyvtárszerkezet és Kriptográfia beállítása ---
+# Könyvtárszerkezet és Kriptográfia beállítása
 # A BASE_DIR a core/settings.py-ból jön, így mindig pontos az abszolút útvonal
 STORAGE_DIR = settings.BASE_DIR / "storage"
 KEY_FILE = STORAGE_DIR / "secret.key"
@@ -32,11 +32,10 @@ if not KEY_FILE.exists():
     KEY_FILE.write_bytes(Fernet.generate_key())
     logger.info("Új titkosítási kulcs (secret.key) generálva a Django projekthez.")
 
-# Globális Fernet példány
 FERNET = Fernet(KEY_FILE.read_bytes())
 
 
-# --- Kriptográfiai Alapműveletek ---
+# Kriptográfiai Alapműveletek
 
 def encrypt_and_save_file(uploaded_file, output_path: str) -> bool:
     #Egy weben keresztül feltöltött fájl (InMemoryUploadedFile) nyers bájtjainak titkosítása és lemezre mentése.
@@ -79,7 +78,7 @@ def create_temp_decrypted_file(rel_enc_path: str) -> str | None:
         logger.error(f"Temp visszafejtés sikertelen, hiányzó fájl: {enc_path}")
         return None
 
-    # Egyedi azonosító a fájlnak (ne akadjanak össze a felhasználók a weben!)
+    # Egyedi azonosító a fájlnak (ne akadjanak össze a felhasználók a weben)
     temp_path = TEMP_DIR / f"temp_{uuid.uuid4().hex}.pdf"
 
     if decrypt_file(str(enc_path), str(temp_path)):
@@ -88,7 +87,6 @@ def create_temp_decrypted_file(rel_enc_path: str) -> str | None:
 
 
 def clear_temp_files():
-    # Kiüríti a temp mappát.
 
     try:
         temp_files = TEMP_DIR.glob("temp_*.pdf")
@@ -155,7 +153,7 @@ def auto_archive_expired_documents():
                 )
                 archived_docs.append(doc)
         else:
-            # Ha az adatbázisban ott van, de a fájlrendszerben nincs, naplózzuk a hibát a konzolra
+            # Ha az adatbázisban ott van, de a fájlrendszerben nincs, naplózva legyen a hiba konzolra
             print(f"Hiba: A fájl nem található a megadott útvonalon: {doc.filepath}")
 
     return archived_docs
@@ -191,7 +189,7 @@ def apply_watermark(input_pdf_path, watermark_text):
     watermark_page = watermark_pdf.pages[0]
 
     for page in reader.pages:
-        # Összefésüljük az eredeti oldalt a vízjellel
+        # Összefésüli az eredeti oldalt a vízjellel
         page.merge_page(watermark_page)
         writer.add_page(page)
 
@@ -233,7 +231,7 @@ def cleanup_temp_files(threshold_minutes=15):
                     file.unlink()
                     deleted_count += 1
                 except PermissionError:
-                    # Ha a fájl épp nyitva van egy böngészőben, nem tudjuk törölni, békén hagyjuk a következő futásig.
+                    # Megnyitott vagy zárolt fájl esetén a törlés nem hajtható végre, így az állomány a következő futtatásig a tárolóban marad.
                     pass
 
     return deleted_count
