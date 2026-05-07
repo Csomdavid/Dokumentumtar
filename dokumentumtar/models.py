@@ -17,7 +17,6 @@ class Employee(AbstractUser):
     def __str__(self):
         return f"{self.username} ({self.role})"
 
-    # Új mező a lejárati értesítések követéséhez
     last_expiry_check = models.DateTimeField(null=True, blank=True)
 
 
@@ -81,7 +80,7 @@ class Permission(models.Model):
 class AuditLog(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
-    # Nem kapcsolom ForeignKey-el, hogy ha a felhasználót törlik, a napló akkor is megmaradjon a nevével! (Auditálási alapelv)
+    # A mező nincs ForeignKey-el összekapcsolva, így a felhasználó törlése esetén is megmarad a név a naplóban (Auditálási alapelv).
     username = models.CharField(max_length=150)
     action = models.CharField(max_length=100)
     details = models.TextField(blank=True, null=True)
