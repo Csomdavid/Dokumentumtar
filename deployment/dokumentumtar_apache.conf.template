@@ -1,10 +1,9 @@
-# --- APACHE CONFIGURATION TEMPLATE ---
+# APACHE CONFIGURATION TEMPLATE
 # Útmutató: Cseréld le a {PROJECT_ROOT} kifejezést a projekted teljes elérési útjára.
-# Példa: C:/Szakdolgozat/Dokumentumtar (Figyelem: Windows alatt is / jelet használj!)
+# Példa: C:/Szakdolgozat/Dokumentumtar (Figyelem: Windows alatt is / jelet használjon!)
 
 <VirtualHost *:80>
     ServerName dokumentumtar.local
-    # Automatikus átirányítás HTTPS-re a kiberbiztonsági tézis alátámasztásához
     Redirect permanent / https://dokumentumtar.local/
 </VirtualHost>
 
@@ -35,7 +34,7 @@
         Require all granted
     </Directory>
 
-    # --- BIZTONSÁGI FEJLÉCEK (A szakdolgozat kiberbiztonsági pillérei) ---
+    # BIZTONSÁGI FEJLÉCEK
     # Megakadályozza a MIME-típusú sniffing támadásokat
     Header always set X-Content-Type-Options "nosniff"
     # Clickjacking elleni védelem: az oldal nem ágyazható be iframe-be
