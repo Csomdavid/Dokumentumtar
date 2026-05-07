@@ -8,6 +8,6 @@ urlpatterns = [
     # A Django beépített, biztonságos bejelentkezési/kijelentkezési útvonalai
     path('accounts/', include('django.contrib.auth.urls')),
     
-    # A saját dokumentumtárunk útvonalainak becsatolása a gyökérkönyvtárba
+    # A dokumentumtár útvonalainak becsatolása a gyökérkönyvtárba
     path('', include('dokumentumtar.urls')),
 ]
