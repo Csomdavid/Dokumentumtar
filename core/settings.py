@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # .env fájl helye a betöltéshez
 load_dotenv(BASE_DIR / '.env')
 
-# Értékek (.strip() kiolvasása
 SECRET_KEY = os.getenv('SECRET_KEY')
 APP_ENV = os.getenv('APP_ENV', 'prod').lower().strip()
 
@@ -18,8 +17,6 @@ DEBUG = (APP_ENV == 'dev')
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
-# Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -27,7 +24,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-# --- Saját applikációk ---
     'dokumentumtar',
 ]
 
@@ -62,7 +58,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -73,7 +68,6 @@ DATABASES = {
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -92,7 +86,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'hu'
 
@@ -104,34 +97,30 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# A fájl legaljára:
 AUTH_USER_MODEL = 'dokumentumtar.Employee'
 
-# --- ADATTÁROLÁSI ÚTVONALAK (Relatív a projekthez) ---
+# ADATTÁROLÁSI ÚTVONALAK (Relatív a projekthez)
 STORAGE_DIR = BASE_DIR / 'storage'
 UPLOADS_DIR = STORAGE_DIR / 'uploads'
 TEMP_DIR = STORAGE_DIR / 'temp'
 
-# Automatikus mappalétrehozás (opcionális, de hasznos)
+# Automatikus mappalétrehozás
 for folder in [UPLOADS_DIR, TEMP_DIR]:
     folder.mkdir(parents=True, exist_ok=True)
 
-# Hova ugorjon a rendszer sikeres bejelentkezés után? (A főoldalra)
+# A főoldalra ugorjon a rendszer sikeres bejelentkezés után 
 LOGIN_REDIRECT_URL = '/'
 
-# Hova ugorjon kijelentkezés után? (Vissza a bejelentkezéshez)
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# --- BIZTONSÁGI MUNKAMENET-KEZELÉS (Session Security) ---
+# BIZTONSÁGI MUNKAMENET-KEZELÉS (Session Security)
 
 # A munkamenet hossza másodpercben (15 perc = 15 * 60 = 900 másodperc)
 SESSION_COOKIE_AGE = 900
@@ -146,5 +135,5 @@ SESSION_SAVE_EVERY_REQUEST = True
 # Megakadályozza, hogy JavaScriptből hozzáférjenek a munkamenet-sütihez (XSS védelem)
 SESSION_COOKIE_HTTPONLY = True
 
-# Csak HTTPS kapcsolaton keresztül küldje el a sütit (ha majd Apache-ra teszed SSL-lel)
+# Csak HTTPS kapcsolaton keresztül küldje el a sütit
 SESSION_COOKIE_SECURE = (APP_ENV == 'prod')
