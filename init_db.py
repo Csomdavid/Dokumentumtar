@@ -11,7 +11,7 @@ def setup_security():
     storage_path = Path(__file__).resolve().parent / "storage"
     key_file = storage_path / "secret.key"
 
-    # Csak akkor generálunk, ha még nem létezik a kulcs
+    # A titkosítási kulcs generálása kizárólag annak hiánya esetén történik meg
     if not key_file.exists():
         print("[!] Dokumentum-titkosito kulcs nem talalhato. Generalas...")
         
@@ -27,7 +27,7 @@ def setup_security():
     else:
         print("[✓] Dokumentum-titkosito kulcs mar letezik.")
 
-# Futtatjuk a biztonsági setupot, MÉG MIELŐTT a Django betöltődne
+# A biztonsági konfiguráció végrehajtása a Django keretrendszer inicializálása előtt
 setup_security()
 
 # 2. Django környezet inicializálása
@@ -51,7 +51,7 @@ def initialize_database():
     print("\n--- Adatbazis inicializalasa (RBAC setup) ---")
 
     for username, email, password, is_staff, is_super, role_name in users_data:
-        # Ellenőrizzük, létezik-e már a felhasználó
+        # A felhasználó létezésének ellenőrzése az adatbázisban
         user = User.objects.filter(username=username).first()
         
         if not user:
