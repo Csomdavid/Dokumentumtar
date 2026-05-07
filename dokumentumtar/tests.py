@@ -36,11 +36,11 @@ class DocumentSecurityTest(TestCase):
         # 1. Bejelentkezés sima felhasználóként
         self.client.login(username='testuser', password='password123')
 
-        # 2. Megpróbáljuk elérni a dokumentum részleteit (Info gomb útvonala)
+        # 2. Megpróbálja elérni a dokumentum részleteit (Info gomb útvonala)
         url = reverse('document_detail', args=[self.doc.id])
         response = self.client.get(url)
 
-        # Jogosultság nélkül 403 Forbidden választ kell kapnunk
+        # Jogosultság nélkül 403 Forbidden választ kell kapnia
         self.assertEqual(response.status_code, 403)
 
         # 3. Jogosultság hozzáadása az adatbázisban
@@ -50,15 +50,15 @@ class DocumentSecurityTest(TestCase):
             permission_type='read'
         )
 
-        # 4. Újra megpróbáljuk elérni az oldalt
+        # 4. Újra megpróbálja elérni az oldalt
         response = self.client.get(url)
 
-        # Most már 200 OK választ kell kapnunk
+        # Most már 200 OK választ kell kapni
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Titkos dokumentum")
 
     def test_expiry_logic_colors(self):
-        # ... (a korábbi színkódos teszt változatlan marad) ...
+        # a korábbi színkódos teszt változatlan marad
         doc_red = Document.objects.create(
             title="Közeli lejárat",
             valid_until=date.today() + timedelta(days=5),
@@ -66,11 +66,11 @@ class DocumentSecurityTest(TestCase):
         )
         self.assertEqual(doc_red.expiry_class, "table-danger")
 
-    # tests.py részlet
+
     import os
 
     def test_auto_archive_logic(self):
-        # Létrehozunk egy valódi tesztfájlt
+        # Valódi tesztfájl létrehozása.
         test_path = "storage/uploads/test_file.pdf"
         os.makedirs(os.path.dirname(test_path), exist_ok=True)
         with open(test_path, "w") as f:
@@ -86,9 +86,9 @@ class DocumentSecurityTest(TestCase):
         auto_archive_expired_documents()
         expired_doc.refresh_from_db()
 
-        # Ellenőrizzük, hogy az útvonal frissült-e
+        # Az útvonal frissülésének ellenőrzése.
         self.assertIn("archive", expired_doc.filepath)
 
-        # Takarítás: töröljük a tesztfájlt az archívumból
+        # Takarítás: a tesztfájl törlése az archívumból.
         if os.path.exists(expired_doc.filepath):
             os.remove(expired_doc.filepath)
