@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.db.models import Count
 
 from .models import Document, Permission, Employee, AuditLog
-# Beimportáljuk a calculate_hash függvényt is a services-ből
+# A calculate_hash függvény importálása a services modulból
 from .services import (
     encrypt_and_save_file,
     create_temp_decrypted_file,
@@ -32,13 +32,13 @@ def document_list(request):
     # 2. Értesítés kiszámítása: hány dokumentum járt le a legutóbbi belépés óta?
     new_expired_count = 0
     if request.user.last_expiry_check:
-        # Azokat számoljuk, amik a két időpont között jártak le
+        # A két időpont közötti intervallumban lejárt dokumentumok összesítése
         new_expired_count = Document.objects.filter(
             valid_until__gte=request.user.last_expiry_check.date(),
             valid_until__lt=datetime.date.today()
         ).count()
 
-    # Frissítjük az időpontot a mostanira
+    # Az időbélyeg frissítése az aktuális időpontra
     request.user.last_expiry_check = datetime.datetime.now()
     request.user.save(update_fields=['last_expiry_check'])
 
@@ -49,7 +49,7 @@ def document_list(request):
     query = request.GET.get('q')  # Keresési paraméter kinyerése
 
     if request.user.role == 'admin':
-        # EXCLUDE: Kivesszük azokat, amiknek az útvonalában benne van az 'archive' szó
+        # EXCLUDE: Az elérési útjukban az 'archive' kifejezést tartalmazó elemek kizárása
         docs = Document.objects.exclude(filepath__icontains='archive')
     else:
         docs = Document.objects.filter(permissions__employee=request.user).exclude(
@@ -69,7 +69,7 @@ def document_list(request):
     context = {
         'docs': docs,
         'query': query,
-        'new_expired_count': new_expired_count # Ezt adjuk át a sablonnak
+        'new_expired_count': new_expired_count # Az adatok átadása a megjelenítő sablonnak (template)
     }
     return render(request, 'dokumentumtar/document_list.html', context)
 
@@ -82,7 +82,7 @@ def document_upload(request):
     if request.method == 'POST':
         title = request.POST.get('title')
         description = request.POST.get('description')
-        # Kinyerjük az alapértékeket (ha üres, legyen None)
+        # Az alapértékek kinyerése; hiányzó adat esetén None érték hozzárendelése
         valid_from_raw = request.POST.get('valid_from')
         valid_until_raw = request.POST.get('valid_until')
         pdf_file = request.FILES.get('pdf_file')
@@ -104,7 +104,7 @@ def document_upload(request):
             return redirect('document_upload')
 
         # 2. LOGIKAI VALIDÁCIÓ: Dátumok ellenőrzése
-        # Csak akkor ellenőrizzük, ha mindkét dátumot megadták
+        # Az ellenőrzés futtatása kizárólag mindkét dátum megléte esetén
         if valid_from_raw and valid_until_raw:
             try:
                 from_date = datetime.datetime.strptime(valid_from_raw, '%Y-%m-%d')
@@ -117,9 +117,9 @@ def document_upload(request):
                 messages.error(request, "Érvénytelen dátumformátum!")
                 return redirect('document_upload')
 
-        # --- Integritás: SHA-256 Hash számítása ---
+        # Integritás: SHA-256 Hash számítása
         f_hash = calculate_hash(pdf_file)
-        pdf_file.seek(0) # Visszatekerés a titkosításhoz!
+        pdf_file.seek(0) # Visszatekerés a titkosításhoz
 
         # 3. Útvonalak és titkosítás
         orig_name = pdf_file.name
@@ -164,18 +164,18 @@ def document_upload(request):
 def document_download(request, doc_id):
 
     """Biztonságos fájlletöltő és megtekintő végpont dinamikus vízjelezéssel."""
-    # --- AUTOMATIKUS TAKARÍTÁS ---
+    # AUTOMATIKUS TAKARÍTÁS
     cleanup_temp_files(threshold_minutes=15)
 
     doc = get_object_or_404(Document, pk=doc_id)
-    # Ellenőrizzük, hogy megtekintés (inline) vagy letöltés (attachment) a kérés
+    # A kérés típusának (megtekintés/inline vagy letöltés/attachment) meghatározása
     view_mode = request.GET.get('view') == '1'
 
     # 1. Jogosultság ellenőrzése (Authorization)
     if request.user.role != 'admin':
         has_perm = Permission.objects.filter(document=doc, employee=request.user).exists()
         if not has_perm:
-            # --- Audit Log: Jogosulatlan hozzáférési kísérlet ---
+            # Audit Log: Jogosulatlan hozzáférési kísérlet
             AuditLog.objects.create(
                 username=request.user.username,
                 action="UNAUTHORIZED_ACCESS",
@@ -189,7 +189,7 @@ def document_download(request, doc_id):
     if not temp_path:
         raise Http404("A titkosított fájl fizikailag nem található a szerveren.")
 
-    # --- 2/B. INTEGRITÁS-ELLENŐRZÉS: Megnézzük, módosult-e a fájl a tárolás óta ---
+    # 2/B. INTEGRITÁS-ELLENŐRZÉS: A fájl tárolás óta történt esetleges módosulásának vizsgálata
     with open(temp_path, 'rb') as f:
         current_hash = calculate_hash(f.read())
 
@@ -215,7 +215,7 @@ def document_download(request, doc_id):
         # Vízjel ráhelyezése a visszafejtett ideiglenes fájlra
         final_path = apply_watermark(temp_path, watermark_text)
 
-    # --- Audit Log: Művelet specifikus naplózása ---
+    # Audit Log: Művelet specifikus naplózása
     action_type = "VIEW" if view_mode else "DOWNLOAD"
     action_text = "megtekintve (vízjelezve)" if view_mode else "letöltve"
 
@@ -284,7 +284,7 @@ def document_archive(request, doc_id):
         doc.filepath = new_path
         doc.save()
 
-        # --- Audit Log: Archiválás naplózása ---
+        # Audit Log: Archiválás naplózása
         AuditLog.objects.create(
             username=request.user.username,
             action="ARCHIVE",
@@ -316,7 +316,7 @@ def permission_manager(request):
             doc = get_object_or_404(Document, id=doc_id)
             employee = get_object_or_404(Employee, id=user_id)
 
-            # --- ÚJ BIZTONSÁGI SZABÁLY: Másik admin jogait nem módosíthatod ---
+            # ÚJ BIZTONSÁGI SZABÁLY: Más adminisztrátor jogosultságainak módosítása tiltott
             if employee.role == 'admin' and employee != request.user:
                 messages.error(request, f"Biztonsági korlátozás: {employee.username} (Admin) jogosultságait nem módosíthatod!")
                 return redirect('permission_manager')
@@ -337,7 +337,7 @@ def permission_manager(request):
 
         return redirect('permission_manager')
 
-    # A GET rész marad változatlan...
+    # A GET rész változatlan marad
     permissions = Permission.objects.select_related('document', 'employee').all().order_by('document__title')
     documents = Document.objects.exclude(filepath__icontains='archive').order_by('title')
     employees = Employee.objects.filter(is_active=True).order_by('username')
@@ -358,7 +358,7 @@ def permission_delete(request, perm_id):
     perm = get_object_or_404(Permission, id=perm_id)
     target = perm.employee
 
-    # --- HIERARCHIKUS VÉDELEM ---
+    # HIERARCHIKUS VÉDELEM
     # Ha a cél admin, és aki törölni akar az NEM szuperadmin és nem is önmaga
     if target.role == 'admin' and not request.user.is_superuser and target != request.user:
         messages.error(request, "🛡️ Csak a Szuperadmin vonhatja vissza egy másik Admin jogait!")
@@ -402,7 +402,7 @@ def profile_view(request):
             # Fontos: Frissíti a session-t, hogy ne dobja ki a felhasználót a csere után
             update_session_auth_hash(request, user)
 
-            # --- Audit Log: Jelszócsere naplózása ---
+            # Audit Log: Jelszócsere naplózása
             AuditLog.objects.create(
                 username=request.user.username,
                 action="PASSWORD_CHANGE",
@@ -411,7 +411,7 @@ def profile_view(request):
             )
 
             messages.success(request, 'A jelszavadat sikeresen frissítettük!')
-            return redirect('profile') # <--- Ellenőrizd a nevet a urls.py-ban!
+            return redirect('profile')
         else:
             # Ha a form nem valid (pl. nem egyeznek a jelszavak)
             messages.error(request, 'Hiba történt. Kérlek, ellenőrizd a megadott adatokat!')
@@ -429,7 +429,7 @@ def admin_password_reset(request, user_id):
 
     target_user = get_object_or_404(Employee, id=user_id)
 
-    # --- KRITIKUS BIZTONSÁGI SZABÁLY ---
+    # KRITIKUS BIZTONSÁGI SZABÁLY
     # Szuperadmin jelszava a weben keresztül ÉRINTHETETLEN
     if target_user.is_superuser:
         messages.error(request, "🛡️ Biztonsági korlátozás: A Szuperadmin jelszava nem módosítható a webes felületről!")
@@ -477,7 +477,7 @@ def security_dashboard(request):
     if request.user.role != 'admin':
         return HttpResponseForbidden("Csak adminisztrátorok láthatják a biztonsági statisztikákat!")
 
-    # --- AUTOMATIKUS TAKARÍTÁS ÉS NAPLÓZÁS ---
+    # AUTOMATIKUS TAKARÍTÁS ÉS NAPLÓZÁS
     deleted_count = cleanup_temp_files(threshold_minutes=15)
     if deleted_count and deleted_count > 0:
         AuditLog.objects.create(
@@ -555,7 +555,7 @@ def document_detail(request, doc_id):
     """
     doc = get_object_or_404(Document, pk=doc_id)
 
-    # Jogosultság ellenőrzése (hasonlóan a letöltéshez) [cite: 855, 942]
+    # Jogosultság ellenőrzése (hasonlóan a letöltéshez)
     if request.user.role != 'admin':
         has_perm = Permission.objects.filter(document=doc, employee=request.user).exists()
         if not has_perm:
